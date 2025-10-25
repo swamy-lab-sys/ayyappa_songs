@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <style>
+    body {
+      font-family: "Noto Sans Tamil", "Noto Sans Telugu", "Devanagari", sans-serif;
+      color: #3a2d00;
+      margin: 0;
+      padding: 0;
+      background: #fffdf8;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .header h1 {
+      font-size: 22pt;
+      color: #b45309;
+      margin-bottom: 5px;
+    }
+
+    .header p {
+      font-size: 10pt;
+      color: #6b4b15;
+      margin-top: 0;
+    }
+
+    .divider {
+      height: 3px;
+      background: linear-gradient(to right, #b45309, #7c2d12);
+      margin: 10px 0 15px;
+    }
+
+    .grid {
+      display: table;
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .col {
+      display: table-cell;
+      width: 33%;
+      vertical-align: top;
+      border: 1px solid #e0c097;
+      padding: 8px;
+    }
+
+    .col h3 {
+      text-align: center;
+      color: #92400e;
+      border-bottom: 1px dashed #d6a758;
+      margin-bottom: 6px;
+      padding-bottom: 4px;
+    }
+
+    .verse {
+      white-space: pre-line;
+      line-height: 1.5;
+      font-size: 11pt;
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 25px;
+      color: #78350f;
+      font-size: 10pt;
+    }
+
+    .footer strong {
+      color: #b45309;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="header">
+    <h1>{{ song.title }}</h1>
+    <p>Uploaded by {{ song.owner.username }} • {{ song.uploaded_at|date:"F j, Y" }}</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="grid">
+    <div class="col">
+      <h3>🕉 Tamil</h3>
+      <div class="verse">{{ song.script|linebreaksbr }}</div>
+    </div>
+    <div class="col">
+      <h3>🌐 English</h3>
+      <div class="verse">{{ song.script_english|linebreaksbr }}</div>
+    </div>
+    <div class="col">
+      <h3>💠 Telugu</h3>
+      <div class="verse">{{ song.script_telugu|linebreaksbr }}</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div>✿ ❀ ✿</div>
+    <div><strong>🕉 Swamiye Saranam Ayyappa 🕉</strong></div>
+    <div>May Lord Ayyappan bless you with devotion and peace</div>
+  </div>
+
+</body>
+</html>

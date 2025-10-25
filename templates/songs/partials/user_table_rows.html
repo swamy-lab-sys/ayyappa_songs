@@ -1,0 +1,89 @@
+<!-- Partial template for HTMX live search - only table body -->
+{% if page_obj %}
+    {% for user_obj in page_obj %}
+    <tr class="hover:bg-amber-50 transition border-b border-gray-200">
+        <td class="px-6 py-4">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center text-white font-bold">
+                    {{ user_obj.username.0|upper }}
+                </div>
+                <div>
+                    <p class="font-medium text-gray-800">{{ user_obj.username }}</p>
+                    <p class="text-xs text-gray-500">
+                        Joined {{ user_obj.date_joined|date:"M d, Y" }}
+                    </p>
+                </div>
+            </div>
+        </td>
+        <td class="px-6 py-4 text-sm text-gray-700">
+            {{ user_obj.email|default:"—" }}
+        </td>
+        <td class="px-6 py-4">
+            {% if user_obj.is_superuser %}
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-purple-100 text-purple-800">
+                🛡️ Superuser
+            </span>
+            {% elif user_obj.is_staff %}
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                ⭐ Admin
+            </span>
+            {% else %}
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-700">
+                👤 User
+            </span>
+            {% endif %}
+        </td>
+        <td class="px-6 py-4 text-sm text-gray-700">
+            {% if user_obj.profile %}
+                <div class="flex items-center gap-2">
+                    <i class="fa-solid fa-location-dot text-amber-600"></i>
+                    {{ user_obj.profile.region|default:"—" }}
+                </div>
+            {% else %}
+                —
+            {% endif %}
+        </td>
+        <td class="px-6 py-4 text-center">
+            <span class="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 text-sm font-semibold rounded-full">
+                <i class="fa-solid fa-music"></i>
+                {{ user_obj.song_count|default:0 }}
+            </span>
+        </td>
+        <td class="px-6 py-4 text-center">
+            <div class="flex items-center justify-center gap-2">
+                <button 
+                    onclick="viewUserDetails({{ user_obj.id }})"
+                    class="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-lg transition"
+                    title="View Details">
+                    <i class="fa-solid fa-eye"></i>
+                </button>
+                {% if not user_obj.is_superuser and user_obj != user %}
+                <button 
+                    onclick="toggleUserRole({{ user_obj.id }})"
+                    class="px-3 py-1.5 {% if user_obj.is_staff %}bg-yellow-500 hover:bg-yellow-600{% else %}bg-green-500 hover:bg-green-600{% endif %} text-white text-sm rounded-lg transition"
+                    title="{% if user_obj.is_staff %}Demote to User{% else %}Promote to Admin{% endif %}">
+                    <i class="fa-solid {% if user_obj.is_staff %}fa-arrow-down{% else %}fa-arrow-up{% endif %}"></i>
+                </button>
+                {% endif %}
+            </div>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="6" class="px-6 py-12 text-center">
+            <div class="text-gray-400">
+                <i class="fa-solid fa-users-slash text-4xl mb-3 block"></i>
+                <p class="text-lg font-medium text-gray-600">No users found</p>
+                <p class="text-sm text-gray-500">Try adjusting your search or filters</p>
+            </div>
+        </td>
+    </tr>
+    {% endfor %}
+{% else %}
+<tr>
+    <td colspan="6" class="px-6 py-8 text-center text-gray-500">
+        <i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2 block"></i>
+        <p>Loading users...</p>
+    </td>
+</tr>
+{% endif %}

@@ -1,0 +1,247 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Admin Settings{% endblock %}
+
+{% block extra_head %}
+<!-- HTMX for smooth form submission -->
+<script src="https://unpkg.com/htmx.org@1.9.10"></script>
+<style>
+  .sticky-save-btn {
+    position: sticky;
+    top: 80px;
+    z-index: 40;
+    background: white;
+    padding: 1rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
+   .btn-gradient {
+    padding: 0.65rem 1.25rem;
+    border-radius: 0.75rem;
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: white;
+    background: linear-gradient(90deg, #f59e0b, #d97706, #9333ea);
+    background-size: 200% 200%;
+    transition: all 0.4s ease;
+  }
+  .btn-gradient:hover {
+    background-position: 100% 0%;
+    box-shadow: 0 0 12px rgba(147, 51, 234, 0.4);
+    transform: translateY(-1px);
+  }
+  .btn-small {
+    padding: 0.25rem 0.75rem;
+    font-size: 0.8rem;
+    border-radius: 0.5rem;
+  }
+  label {
+    font-size: 0.85rem;
+    color: #374151;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  
+  <div class="mb-8">
+    <h1 class="text-3xl font-bold text-gray-800 flex items-center gap-3">
+      <span class="text-4xl">⚙️</span>
+      Admin Settings
+    </h1>
+    <p class="text-gray-600 mt-2">Customize your devotional music app</p>
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="lg:col-span-1">
+      <div class="bg-white rounded-xl shadow-md p-4 sticky top-20">
+        <nav class="space-y-2">
+          <a href="#general" class="flex items-center gap-3 px-4 py-3 rounded-lg bg-amber-50 text-amber-700 font-medium">
+            <i class="fa-solid fa-sliders"></i> General
+          </a>
+          <a href="#theme" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700">
+            <i class="fa-solid fa-palette"></i> Theme
+          </a>
+          <a href="#features" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700">
+            <i class="fa-solid fa-toggle-on"></i> Features
+          </a>
+          <a href="#categories" class="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-gray-50 text-gray-700">
+            <i class="fa-solid fa-om"></i> Categories
+          </a>
+        </nav>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="lg:col-span-3">
+      <!-- Sticky Save Button (Top) -->
+      <div class="sticky-save-btn mb-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-semibold text-gray-800">Site Configuration</h3>
+            <p class="text-sm text-gray-500">Changes will take effect immediately</p>
+          </div>
+          <div class="flex gap-3">
+            <button type="submit" form="settingsForm" class="btn-save px-6 py-2.5 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 font-medium shadow-lg transition flex items-center gap-2">
+              <i class="fa-solid fa-save"></i>
+              <span>Save Changes</span>
+            </button>
+            <a href="{% url 'song_list' %}" class="px-6 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition flex items-center gap-2">
+              <i class="fa-solid fa-xmark"></i>
+              <span>Cancel</span>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <form method="post" id="settingsForm" class="space-y-6">
+        {% csrf_token %}
+        
+        <!-- General Settings -->
+        <div id="general" class="bg-white rounded-xl shadow-md p-6">
+          <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-sliders text-amber-600"></i>
+            General Settings
+          </h2>
+          
+          <div class="space-y-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Site Title</label>
+              <input type="text" name="site_title" value="{{ settings.site_title }}" 
+                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500">
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Site Subtitle</label>
+              <input type="text" name="site_subtitle" value="{{ settings.site_subtitle }}" 
+                     class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500">
+            </div>
+          </div>
+        </div>
+
+        <!-- Theme Settings -->
+        <div id="theme" class="bg-white rounded-xl shadow-md p-6">
+          <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-palette text-purple-600"></i>
+            Theme Colors
+          </h2>
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Primary Color</label>
+              <div class="flex gap-2">
+                <input type="color" name="primary_color" value="{{ settings.primary_color }}" 
+                       class="w-16 h-10 border border-gray-300 rounded cursor-pointer">
+                <input type="text" value="{{ settings.primary_color }}" readonly 
+                       class="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50">
+              </div>
+            </div>
+            
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Secondary Color</label>
+              <div class="flex gap-2">
+                <input type="color" name="secondary_color" value="{{ settings.secondary_color }}" 
+                       class="w-16 h-10 border border-gray-300 rounded cursor-pointer">
+                <input type="text" value="{{ settings.secondary_color }}" readonly 
+                       class="flex-1 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Feature Toggles -->
+        <div id="features" class="bg-white rounded-xl shadow-md p-6">
+          <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-toggle-on text-green-600"></i>
+            Feature Toggles
+          </h2>
+          
+          <div class="space-y-4">
+            <label class="flex items-center gap-3 cursor-pointer p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
+              <input type="checkbox" name="enable_categories" {% if settings.enable_categories %}checked{% endif %} 
+                     class="w-5 h-5 text-amber-600 rounded focus:ring-amber-500">
+              <div>
+                <p class="font-medium text-gray-800">Enable Categories</p>
+                <p class="text-sm text-gray-500">Show deity-based category filters</p>
+              </div>
+            </label>
+            
+            <label class="flex items-center gap-3 cursor-pointer p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
+              <input type="checkbox" name="enable_astotharam" {% if settings.enable_astotharam %}checked{% endif %} 
+                     class="w-5 h-5 text-amber-600 rounded focus:ring-amber-500">
+              <div>
+                <p class="font-medium text-gray-800">Enable Astotharam</p>
+                <p class="text-sm text-gray-500">108 names and verses section</p>
+              </div>
+            </label>
+            
+            <label class="flex items-center gap-3 cursor-pointer p-4 border border-gray-200 rounded-lg hover:bg-gray-50 transition">
+              <input type="checkbox" name="enable_saranaghosha" {% if settings.enable_saranaghosha %}checked{% endif %} 
+                     class="w-5 h-5 text-amber-600 rounded focus:ring-amber-500">
+              <div>
+                <p class="font-medium text-gray-800">Enable Saranaghosha</p>
+                <p class="text-sm text-gray-500">Devotional chants and mantras section</p>
+              </div>
+            </label>
+          </div>
+        </div>
+
+        <!-- Categories Info -->
+        <div id="categories" class="bg-white rounded-xl shadow-md p-6">
+          <h2 class="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+            <i class="fa-solid fa-om text-orange-600"></i>
+            Available Categories
+          </h2>
+          
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+            {% for code, name in categories %}
+            <div class="p-3 border border-gray-200 rounded-lg text-center">
+              <span class="text-2xl">
+                {% if code == 'ayyappa' %}🕉️
+                {% elif code == 'siva' %}🔱
+                {% elif code == 'amman' %}🌸
+                {% elif code == 'murugan' %}🦚
+                {% elif code == 'venkateswara' %}🪔
+                {% else %}✨{% endif %}
+              </span>
+              <p class="text-sm font-medium text-gray-700 mt-1">{{ name }}</p>
+            </div>
+            {% endfor %}
+          </div>
+          
+          <p class="mt-4 text-sm text-gray-500">
+            <i class="fa-solid fa-info-circle"></i> 
+            Categories are used for filtering songs, astotharams, and saranagoshas
+          </p>
+        </div>
+         <!-- Save Button -->
+    <div class="text-right">
+      <button type="submit" class="btn-gradient"><i class="fa-solid fa-save"></i> Save All</button>
+    </div>
+
+        <!-- Bottom Save Button (for convenience) -->
+        {% comment %} <div class="bg-white rounded-xl shadow-md p-6">
+          <div class="flex gap-3">
+            <button type="submit" class="btn-save flex-1 px-6 py-3 bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 font-medium shadow-lg transition flex items-center justify-center gap-2">
+              <i class="fa-solid fa-save"></i>
+              <span>Save All Settings</span>
+
+   
+    
+            </button>
+            <a href="{% url 'song_list' %}" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition flex items-center gap-2">
+              <i class="fa-solid fa-xmark"></i>
+              <span>Cancel</span>
+            </a>
+          </div>
+        </div> {% endcomment %}
+      </form>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

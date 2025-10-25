@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🪔 Offline - Ayyappa Bhajans</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .offline-container {
+            background: white;
+            border-radius: 20px;
+            padding: 60px 40px;
+            max-width: 600px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+        }
+
+        .offline-icon {
+            font-size: 100px;
+            margin-bottom: 30px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        h1 {
+            font-size: 32px;
+            color: #92400e;
+            margin-bottom: 20px;
+        }
+
+        .offline-message {
+            font-size: 18px;
+            color: #78350f;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .offline-info {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border-left: 5px solid #f59e0b;
+        }
+
+        .offline-info p {
+            color: #78350f;
+            margin: 10px 0;
+        }
+
+        .retry-btn {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 20px rgba(245, 158, 11, 0.4);
+        }
+
+        .retry-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(245, 158, 11, 0.6);
+        }
+
+        .saved-songs-link {
+            margin-top: 20px;
+            color: #b45309;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        @media (max-width: 640px) {
+            .offline-container {
+                padding: 40px 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .offline-icon {
+                font-size: 70px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="offline-icon">🪔</div>
+        <h1>You're Offline</h1>
+        <p class="offline-message">
+            It looks like you've lost your internet connection. 
+            Don't worry, your devotion continues!
+        </p>
+
+        <div class="offline-info">
+            <p><strong>📥 Saved Songs:</strong> You can still access songs you've saved for offline reading.</p>
+            <p><strong>🔄 Reconnect:</strong> Once online, all features will be restored.</p>
+            <p><strong>🕉️ Swamiye Saranam Ayyappa</strong></p>
+        </div>
+
+        <button class="retry-btn" onclick="window.location.reload()">
+            🔄 Try Again
+        </button>
+
+        <p class="saved-songs-link" onclick="window.history.back()">
+            ← Back to Previous Page
+        </p>
+    </div>
+
+    <script>
+        window.addEventListener('online', function() {
+            alert('✅ You are back online!');
+            setTimeout(() => window.location.href = '/songs/', 1000);
+        });
+
+        window.addEventListener('offline', function() {
+            console.log('Still offline...');
+        });
+    </script>
+</body>
+</html>

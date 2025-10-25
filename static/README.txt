@@ -1,0 +1,1 @@
+Place static assets here. The project uses CDN for Tailwind and GSAP for animations.

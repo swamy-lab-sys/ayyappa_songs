@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ song.get_title }}</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 2.5cm;
+        }
+        
+        body {
+            font-family: 'Noto Sans', Arial, sans-serif;
+            background: white;
+            color: #333;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 2cm;
+        }
+        
+        .om-symbol {
+            font-size: 42pt;
+            color: #d97706;
+            margin-bottom: 0.5cm;
+        }
+        
+        .main-title {
+            font-size: 22pt;
+            color: #92400e;
+            font-weight: bold;
+            margin-bottom: 0.3cm;
+        }
+        
+        .language-section {
+            margin-bottom: 2cm;
+            page-break-inside: avoid;
+        }
+        
+        .language-header {
+            font-size: 14pt;
+            color: #92400e;
+            font-weight: bold;
+            margin-bottom: 0.5cm;
+            padding-bottom: 0.2cm;
+            border-bottom: 2px solid #f59e0b;
+        }
+        
+        .lyrics {
+            white-space: pre-wrap;
+            font-size: 18pt;
+            line-height: 2;
+            padding: 1cm 0.5cm;
+            text-align: left;
+            color: #000;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 2cm;
+            padding-top: 1cm;
+            border-top: 1px solid #ddd;
+            font-size: 10pt;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- Header -->
+    <div class="header">
+        <div class="om-symbol">🕉️</div>
+        <div class="main-title">{{ song.get_title }}</div>
+    </div>
+    
+    <!-- Language Sections -->
+    {% for lang_code, lang_name in song.available_languages %}
+    <div class="language-section">
+        <div class="language-header">{{ lang_name }} Version</div>
+        <div class="lyrics">{% if lang_code == "tamil" %}{{ song.lyrics_ta|default:"No lyrics available." }}{% elif lang_code == "telugu" %}{{ song.lyrics_te|default:"No lyrics available." }}{% elif lang_code == "english" %}{{ song.lyrics_en|default:"No lyrics available." }}{% endif %}</div>
+    </div>
+    {% endfor %}
+    
+    <!-- Footer -->
+    <div class="footer">
+        Generated from Bhajan Library
+    </div>
+    
+</body>
+</html>

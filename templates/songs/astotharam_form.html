@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{{ action }} Astotharam{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 py-8">
+  <div class="bg-white rounded-xl shadow-lg p-6">
+    <h1 class="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+      <i class="fa-solid fa-om text-purple-600"></i>
+      {{ action }} Astotharam
+    </h1>
+    
+    <form method="post" class="space-y-6">
+      {% csrf_token %}
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Language</label>
+          <select name="language" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500">
+            {% for code, name in languages %}
+            <option value="{{ code }}" {% if astotharam.language == code %}selected{% endif %}>{{ name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+          <select name="category" required class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500">
+            {% for code, name in categories %}
+            <option value="{{ code }}" {% if astotharam.category == code %}selected{% endif %}>{{ name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Tamil Title</label>
+        <input type="text" name="title_ta" value="{{ astotharam.title_ta }}" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500">
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Telugu Title</label>
+        <input type="text" name="title_te" value="{{ astotharam.title_te }}" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500">
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">English Title</label>
+        <input type="text" name="title_en" value="{{ astotharam.title_en }}" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500">
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Tamil Content</label>
+        <textarea name="content_ta" rows="8" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500">{{ astotharam.content_ta }}</textarea>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Telugu Content</label>
+        <textarea name="content_te" rows="8" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500">{{ astotharam.content_te }}</textarea>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">English Content</label>
+        <textarea name="content_en" rows="8" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500">{{ astotharam.content_en }}</textarea>
+      </div>
+      
+      <div class="flex gap-3">
+        <button type="submit" class="px-6 py-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-lg font-medium">
+          <i class="fa-solid fa-save"></i> Save
+        </button>
+        <a href="{% url 'astotharam_list' %}" class="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg">
+          Cancel
+        </a>
+         <button type="submit" class="px-6 py-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-lg font-medium">
+          <i class="fa-solid fa-save"></i> Save
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

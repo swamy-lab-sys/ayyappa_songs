@@ -1,0 +1,120 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Send Notification - Admin{% endblock %}
+
+{% block breadcrumb_extra %}
+<span class="mx-2">›</span>
+<span class="text-amber-700 font-medium">Send Notification</span>
+{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/toast.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-4 sm:px-8 py-8">
+  
+  <!-- Header -->
+  <div class="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg shadow-lg p-6 mb-6 text-white">
+    <div class="flex items-center justify-between flex-wrap gap-4">
+      <div class="flex items-center gap-4">
+        <div class="text-5xl">🔔</div>
+        <div>
+          <h1 class="text-2xl font-bold mb-1">Send Push Notification</h1>
+          <p class="text-white/90">Broadcast message to all devotees</p>
+        </div>
+      </div>
+      <a href="{% url 'song_list' %}" class="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition">
+        <i class="fa-solid fa-arrow-left"></i> Back
+      </a>
+    </div>
+  </div>
+
+  <!-- Notification Form -->
+  <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+    <form method="post">
+      {% csrf_token %}
+      
+      <div class="space-y-6">
+        <!-- Title -->
+        <div>
+          <label for="title" class="block text-sm font-medium text-gray-700 mb-2">
+            <i class="fa-solid fa-heading"></i> Notification Title *
+          </label>
+          <input 
+            type="text" 
+            name="title" 
+            id="title"
+            required
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            placeholder="e.g., New Bhajan Added!">
+        </div>
+
+        <!-- Message Body -->
+        <div>
+          <label for="body" class="block text-sm font-medium text-gray-700 mb-2">
+            <i class="fa-solid fa-message"></i> Message *
+          </label>
+          <textarea 
+            name="body" 
+            id="body"
+            rows="5"
+            required
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            placeholder="Your notification message..."></textarea>
+        </div>
+
+        <!-- Target URL -->
+        <div>
+          <label for="url" class="block text-sm font-medium text-gray-700 mb-2">
+            <i class="fa-solid fa-link"></i> Target URL (Optional)
+          </label>
+          <input 
+            type="text" 
+            name="url" 
+            id="url"
+            value="/songs/"
+            class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+            placeholder="/songs/view/123/">
+          <p class="mt-2 text-sm text-gray-500">
+            Where users go when they click the notification
+          </p>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="mt-8 flex gap-3">
+        <button 
+          type="submit"
+          class="flex-1 px-6 py-3 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
+          <i class="fa-solid fa-bell"></i> Send to All Users
+        </button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Info Box -->
+  <div class="bg-yellow-50 border-l-4 border-yellow-500 rounded-lg p-4">
+    <div class="flex items-start gap-3">
+      <i class="fa-solid fa-triangle-exclamation text-yellow-600 text-xl mt-1"></i>
+      <div class="text-sm text-yellow-800">
+        <p class="font-semibold mb-2">⚠️ Firebase Configuration Required</p>
+        <p class="mb-2">Push notifications require Firebase Cloud Messaging setup:</p>
+        <ol class="ml-4 list-decimal space-y-1">
+          <li>Create Firebase project at <a href="https://console.firebase.google.com/" class="underline" target="_blank">Firebase Console</a></li>
+          <li>Download service account credentials</li>
+          <li>Save as <code class="bg-yellow-100 px-1 rounded">firebase_config.json</code> in project root</li>
+          <li>Initialize in settings.py (see PWA_IMPLEMENTATION_GUIDE.md)</li>
+        </ol>
+        <p class="mt-2 text-xs">
+          Without Firebase setup, notifications won't be sent. See documentation for details.
+        </p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script src="{% static 'js/app.js' %}"></script>
+{% endblock %}

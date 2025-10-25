@@ -1,0 +1,95 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>{{ song.title }} | Swamiye Saranam Ayyappa</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Cormorant+Garamond&display=swap" rel="stylesheet">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(to bottom, #fff8e1, #fff4d6);
+      color: #7c2d12;
+      text-align: center;
+      font-family: 'Cinzel', serif;
+      position: relative;
+    }
+
+    .header-bar {
+      background: linear-gradient(90deg, #7c2d12, #b45309, #92400e);
+      color: white;
+      padding: 8px 0;
+      border-bottom: 3px double #fcd34d;
+      font-size: 14px;
+      text-transform: uppercase;
+    }
+
+    .cover {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      height: 90vh;
+      position: relative;
+      z-index: 2;
+    }
+
+    .cover img {
+      width: 150px;
+      opacity: 0.85;
+      margin-bottom: 15px;
+    }
+
+    h1 {
+      font-size: 30px;
+      margin: 10px 0;
+      color: #7c2d12;
+    }
+
+    h3 {
+      font-size: 16px;
+      color: #92400e;
+      margin-bottom: 10px;
+    }
+
+    .sub {
+      font-family: 'Cormorant Garamond', serif;
+      color: #78350f;
+      font-size: 14px;
+    }
+
+    .mandala {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 70%;
+      transform: translate(-50%, -50%);
+      opacity: 0.08;
+      z-index: 0;
+    }
+
+    .footer {
+      position: absolute;
+      bottom: 1.5cm;
+      width: 100%;
+      font-size: 13px;
+      color: #78350f;
+    }
+  </style>
+</head>
+<body>
+  <div class="header-bar">🔔 Swamiye Saranam Ayyappa 🔔</div>
+
+  <img src="{% static 'images/mandala.png' %}" alt="Mandala" class="mandala">
+
+  <div class="cover">
+    <img src="{% static 'images/ayyappa.png' %}" alt="Ayyappa">
+    <h1>{{ song.title }}</h1>
+    <h3>🕉️ Sree Dharma Sastha Bhaktha Samajam 🕉️</h3>
+    <div class="sub">Devotional Song Archive • Faith • Peace • Bhakti</div>
+  </div>
+
+  <div class="footer">May the divine light of Lord Ayyappa guide you always 🪔</div>
+</body>
+</html>

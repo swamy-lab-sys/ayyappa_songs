@@ -1,0 +1,177 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Astotharam - 108 Names{% endblock %}
+
+
+{% block breadcrumb_extra %}
+<div class="flex flex-wrap items-center justify-between gap-3 bg-amber-50 border border-amber-100 
+            rounded-lg px-4 py-2 shadow-sm">
+  
+  <!-- Left side: breadcrumb label -->
+  <div class="flex items-center gap-2 text-sm text-gray-700">
+    <span class="text-gray-500">›</span>
+    <span class="text-amber-700 font-semibold tracking-wide">🎵 Songs</span>
+  </div>
+
+  <!-- Right side: Add Song button -->
+  <a href="{% url 'astotharam_add' %}" 
+     class="inline-flex items-center gap-2 px-3 py-1.5 bg-gradient-to-r from-amber-500 to-orange-500 
+            hover:from-amber-600 hover:to-orange-600 text-white text-sm font-semibold rounded-lg 
+            shadow-md transition duration-200">
+    <i class="fa-solid fa-plus"></i>
+    Add Astotharam
+  </a>
+</div>
+{% endblock %}
+
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+  
+  <!-- Header -->
+  <div class="mb-6 flex items-center justify-between">
+    <div>
+      <h1 class="text-3xl font-bold text-gray-800 flex items-center gap-3">
+        <span class="text-4xl">🕉️</span>
+        Astotharam - 108 Names
+      </h1>
+      <p class="text-gray-600 mt-1">Sacred 108 names and verses of deities</p>
+    </div>
+   
+  </div>
+
+  <!-- Search & Filter Bar -->
+  <div class="bg-white rounded-xl shadow-md p-5 mb-6">
+    <form method="get" class="space-y-4">
+      <div class="flex flex-wrap gap-3 items-end">
+        <div class="flex-1 min-w-[250px]">
+          <label class="block text-sm font-medium text-gray-700 mb-1">
+            <i class="fa-solid fa-search text-amber-600"></i> Search
+          </label>
+          <input 
+            name="q" 
+            value="{{ q }}" 
+            class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-transparent" 
+            placeholder="Search astotharams...">
+        </div>
+        
+        <div class="w-48">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Language</label>
+          <select name="language" class="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500">
+            <option value="">All</option>
+            <option value="tamil" {% if language == "tamil" %}selected{% endif %}>Tamil</option>
+            <option value="telugu" {% if language == "telugu" %}selected{% endif %}>Telugu</option>
+            <option value="english" {% if language == "english" %}selected{% endif %}>English</option>
+          </select>
+        </div>
+        
+        <button type="submit" class="px-6 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white rounded-lg shadow-md transition">
+          Apply
+        </button>
+        
+        {% if q or language or category %}
+        <a href="{% url 'astotharam_list' %}" class="px-6 py-2.5 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition">
+          Clear
+        </a>
+        {% endif %}
+      </div>
+      
+      <!-- Category Pills -->
+      <div class="flex items-center gap-2 flex-wrap pt-2 border-t">
+        <span class="text-sm font-medium text-gray-700"><i class="fa-solid fa-om text-purple-600"></i> Categories:</span>
+        <a href="?{% if q %}q={{ q }}&{% endif %}{% if language %}language={{ language }}{% endif %}" 
+           class="px-4 py-1.5 rounded-full text-sm font-medium {% if not category %}bg-amber-600 text-white{% else %}bg-gray-100 text-gray-700 hover:bg-gray-200{% endif %}">All</a>
+        <a href="?category=ayyappa{% if q %}&q={{ q }}{% endif %}{% if language %}&language={{ language }}{% endif %}" 
+           class="px-4 py-1.5 rounded-full text-sm font-medium {% if category == 'ayyappa' %}bg-amber-600 text-white{% else %}bg-gray-100 hover:bg-gray-200{% endif %}">🕉️ Ayyappa</a>
+        <a href="?category=siva{% if q %}&q={{ q }}{% endif %}{% if language %}&language={{ language }}{% endif %}" 
+           class="px-4 py-1.5 rounded-full text-sm font-medium {% if category == 'siva' %}bg-amber-600 text-white{% else %}bg-gray-100 hover:bg-gray-200{% endif %}">🔱 Siva</a>
+        <a href="?category=amman{% if q %}&q={{ q }}{% endif %}{% if language %}&language={{ language }}{% endif %}" 
+           class="px-4 py-1.5 rounded-full text-sm font-medium {% if category == 'amman' %}bg-amber-600 text-white{% else %}bg-gray-100 hover:bg-gray-200{% endif %}">🌸 Amman</a>
+        <a href="?category=murugan{% if q %}&q={{ q }}{% endif %}{% if language %}&language={{ language }}{% endif %}" 
+           class="px-4 py-1.5 rounded-full text-sm font-medium {% if category == 'murugan' %}bg-amber-600 text-white{% else %}bg-gray-100 hover:bg-gray-200{% endif %}">🦚 Murugan</a>
+        <a href="?category=venkateswara{% if q %}&q={{ q }}{% endif %}{% if language %}&language={{ language }}{% endif %}" 
+           class="px-4 py-1.5 rounded-full text-sm font-medium {% if category == 'venkateswara' %}bg-amber-600 text-white{% else %}bg-gray-100 hover:bg-gray-200{% endif %}">🪔 Venkateswara</a>
+        <a href="?category=others{% if q %}&q={{ q }}{% endif %}{% if language %}&language={{ language }}{% endif %}" 
+           class="px-4 py-1.5 rounded-full text-sm font-medium {% if category == 'others' %}bg-amber-600 text-white{% else %}bg-gray-100 hover:bg-gray-200{% endif %}">✨ Others</a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Results Count -->
+  <div class="mb-4">
+    <p class="text-sm text-gray-600">
+      Found <span class="font-semibold text-amber-700">{{ page_obj.paginator.count }}</span> astotharams
+    </p>
+  </div>
+
+  <!-- Card Grid -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    {% for item in page_obj %}
+    <div class="bg-white rounded-lg shadow-md hover:shadow-xl transition-all duration-300 border border-gray-100">
+      <div class="bg-gradient-to-r from-purple-50 to-pink-50 p-4 border-b">
+        <h3 class="font-bold text-gray-800 text-base">{{ item.display_title }}</h3>
+        <div class="flex gap-2 mt-2 flex-wrap">
+          <span class="px-2 py-0.5 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+            {{ item.get_language_display }}
+          </span>
+          <span class="px-2 py-0.5 bg-purple-100 text-purple-800 rounded-full text-xs font-semibold">
+            {% if item.category == 'ayyappa' %}🕉️ Ayyappa
+            {% elif item.category == 'siva' %}🔱 Siva
+            {% elif item.category == 'amman' %}🌸 Amman
+            {% elif item.category == 'murugan' %}🦚 Murugan
+            {% elif item.category == 'venkateswara' %}🪔 Venkateswara
+            {% else %}✨ Others{% endif %}
+          </span>
+        </div>
+      </div>
+      <div class="p-4">
+        <p class="text-sm text-gray-600 line-clamp-3 mb-4">{{ item.get_content|truncatewords:30 }}</p>
+        <div class="flex gap-2">
+          <a href="{% url 'astotharam_view' item.pk %}" class="flex-1 px-3 py-2 bg-amber-600 hover:bg-amber-700 text-white text-center rounded-lg transition text-sm font-medium">
+            <i class="fa-solid fa-eye"></i> View
+          </a>
+          {% if user.is_staff %}
+          <a href="{% url 'astotharam_edit' item.pk %}" class="px-3 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition text-sm">
+            <i class="fa-solid fa-edit"></i>
+          </a>
+          {% endif %}
+        </div>
+        <div class="mt-3 pt-3 border-t text-xs text-gray-500">
+          <i class="fa-solid fa-user"></i> {{ item.owner.username }}
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="col-span-full text-center py-16 bg-white rounded-lg shadow">
+      <i class="fa-solid fa-om text-6xl mb-4 text-gray-300"></i>
+      <p class="text-lg text-gray-600">No astotharams found</p>
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Pagination -->
+  {% if page_obj.paginator.num_pages > 1 %}
+  <div class="flex justify-center mt-8">
+    <nav class="flex items-center gap-2">
+      {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if q %}&q={{ q }}{% endif %}{% if language %}&language={{ language }}{% endif %}{% if category %}&category={{ category }}{% endif %}" 
+           class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition text-sm">
+          <i class="fa-solid fa-chevron-left"></i> Previous
+        </a>
+      {% endif %}
+      <span class="px-6 py-2 bg-amber-600 text-white rounded-lg font-semibold text-sm">
+        {{ page_obj.number }} / {{ page_obj.paginator.num_pages }}
+      </span>
+      {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if q %}&q={{ q }}{% endif %}{% if language %}&language={{ language }}{% endif %}{% if category %}&category={{ category }}{% endif %}" 
+           class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition text-sm">
+          Next <i class="fa-solid fa-chevron-right"></i>
+        </a>
+      {% endif %}
+    </nav>
+  </div>
+  {% endif %}
+
+</div>
+{% endblock %}

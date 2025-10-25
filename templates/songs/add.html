@@ -1,0 +1,198 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Song - 🕉️ Swamiye Saranam Ayyappa{% endblock %}
+
+{% block breadcrumb_extra %}
+<span class="mx-2">›</span>
+<a href="{% url 'song_list' %}" class="hover:text-amber-700 transition">Songs</a>
+<span class="mx-2">›</span>
+<span class="text-amber-700 font-medium">Add New Song</span>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto px-4 sm:px-8 py-8">
+  
+  <!-- Page Title -->
+  <div class="text-center mb-6">
+    <h1 class="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-amber-600 via-orange-700 to-purple-800">
+      🕉️ Swamiye Saranam Ayyappa 🕉️
+    </h1>
+  </div>
+  
+  <div class="bg-white rounded-lg shadow-md p-6 sm:p-8">
+    <h2 class="text-2xl font-semibold text-amber-800 mb-6 flex items-center gap-2">
+      <i class="fa-solid fa-plus-circle"></i> Add New Song
+    </h2>
+
+    <form method="post" enctype="multipart/form-data" id="songForm">
+      {% csrf_token %}
+      
+      <!-- Display form errors -->
+      {% if form.errors %}
+      <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-md text-red-700">
+        <strong>Please correct the following errors:</strong>
+        <ul class="list-disc list-inside mt-2">
+          {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+              <li>{{ field }}: {{ error }}</li>
+            {% endfor %}
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+      
+      <!-- Primary Language -->
+      <div class="mb-6">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Primary Language *</label>
+        {{ form.language }}
+        <p class="text-xs text-gray-500 mt-1">Select the primary language for this song</p>
+      </div>
+
+          <!-- Category -->
+    <div class="mb-6">
+      <label class="block text-sm font-medium text-gray-700 mb-2">Category *</label>
+      {{ form.category }}
+      <p class="text-xs text-gray-500 mt-1">{{ form.category.help_text }}</p>
+    </div>
+
+      <!-- Multilingual Titles Section -->
+      <div class="mb-6 p-4 bg-amber-50 rounded-lg border border-amber-200">
+        <h3 class="text-lg font-semibold text-amber-800 mb-4">Song Titles (at least one required)</h3>
+        
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">🕉 Tamil Title</label>
+            {{ form.title_ta }}
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">💠 Telugu Title</label>
+            {{ form.title_te }}
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">🌐 English Title</label>
+            {{ form.title_en }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Multilingual Lyrics Section -->
+      <div class="mb-6 p-4 bg-purple-50 rounded-lg border border-purple-200">
+        <h3 class="text-lg font-semibold text-purple-800 mb-4">Song Lyrics (optional)</h3>
+        
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">🕉 Tamil Lyrics</label>
+            {{ form.lyrics_ta }}
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">💠 Telugu Lyrics</label>
+            {{ form.lyrics_te }}
+          </div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">🌐 English Lyrics</label>
+            {{ form.lyrics_en }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Audio Section (Optional) -->
+      <div class="mb-6 p-4 bg-green-50 rounded-lg border border-green-200">
+        <h3 class="text-lg font-semibold text-green-800 mb-4">Audio Source (optional)</h3>
+        
+        <div class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">YouTube URL</label>
+            {{ form.youtube_url }}
+            <p class="text-xs text-gray-500 mt-1">{{ form.youtube_url.help_text }}</p>
+          </div>
+          
+          <div class="text-center text-gray-500 text-sm font-medium">OR</div>
+          
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Upload Audio File</label>
+            {{ form.audio_upload }}
+            <p class="text-xs text-gray-500 mt-1">{{ form.audio_upload.help_text }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cover Image -->
+      <div class="mb-6">
+        <label class="block text-sm font-medium text-gray-700 mb-2">Cover Image (optional)</label>
+        {{ form.cover_image }}
+      </div>
+
+      <!-- Favorite Checkbox -->
+      <div class="mb-6 flex items-center gap-2">
+        {{ form.is_favorite }}
+        <label for="{{ form.is_favorite.id_for_label }}" class="text-sm font-medium text-gray-700">
+          {{ form.is_favorite.label }}
+        </label>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-wrap gap-3 mt-8">
+        <button type="submit" class="px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-md shadow-md transition flex items-center gap-2">
+          <i class="fa-solid fa-save"></i> Save Song
+        </button>
+        <a href="{% url 'song_list' %}" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md transition flex items-center gap-2">
+          <i class="fa-solid fa-times"></i> Cancel
+        </a>
+      </div>
+    </form>
+  </div>
+
+</div>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-60 hidden items-center justify-center z-50" style="backdrop-filter: blur(4px);">
+  <div class="bg-white rounded-lg shadow-2xl p-8 max-w-sm w-full mx-4 text-center">
+    <div class="mb-4">
+      <div class="inline-block animate-spin rounded-full h-16 w-16 border-4 border-amber-500 border-t-transparent"></div>
+    </div>
+    <h3 class="text-xl font-semibold text-amber-800 mb-2">🎵 Uploading and Saving...</h3>
+    <p class="text-gray-600">Please wait while we process your song</p>
+    <p class="text-sm text-gray-500 mt-2">This may take a moment if downloading from YouTube</p>
+  </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const form = document.getElementById('songForm');
+  const loadingOverlay = document.getElementById('loadingOverlay');
+  
+  form.addEventListener('submit', function(e) {
+    // Show loading overlay
+    loadingOverlay.classList.remove('hidden');
+    loadingOverlay.classList.add('flex');
+    
+    // Disable submit button to prevent double submission
+    const submitButton = form.querySelector('button[type="submit"]');
+    if (submitButton) {
+      submitButton.disabled = true;
+      submitButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+    }
+  });
+  
+  // Hide overlay if form has errors (page reload with errors)
+  {% if form.errors %}
+  loadingOverlay.classList.add('hidden');
+  loadingOverlay.classList.remove('flex');
+  {% endif %}
+});
+</script>
+
+<style>
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+</style>
+
+{% endblock %}

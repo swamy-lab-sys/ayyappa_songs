@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block title %}Delete Astotharam - {{ astotharam.display_title }}{% endblock %}
+
+{% block breadcrumb_extra %}
+<span class="mx-2">›</span>
+<a href="{% url 'astotharam_list' %}" class="hover:text-amber-700 transition">Astotharams</a>
+<span class="mx-2">›</span>
+<a href="{% url 'astotharam_view' astotharam.id %}" class="hover:text-amber-700 transition">
+  {{ astotharam.display_title|truncatewords:5 }}
+</a>
+<span class="mx-2">›</span>
+<span class="text-amber-700 font-medium">Delete</span>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-2xl mx-auto px-4 sm:px-8 py-16">
+
+  <div class="bg-white border-2 border-red-300 rounded-2xl p-8 shadow-xl">
+
+    <!-- Warning Icon -->
+    <div class="text-center mb-6">
+      <i class="fa-solid fa-triangle-exclamation text-6xl text-red-500 mb-4"></i>
+      <h2 class="text-3xl font-bold text-red-700">Confirm Deletion</h2>
+    </div>
+
+    <!-- Message -->
+    <div class="mb-8 p-4 bg-red-50 border border-red-200 rounded-lg">
+      <p class="text-center text-gray-800 text-lg">
+        Are you sure you want to delete <strong class="text-red-700">"{{ astotharam.display_title }}"</strong>?
+      </p>
+      <p class="text-center text-sm text-gray-600 mt-2">
+        This action cannot be undone.
+      </p>
+    </div>
+
+    <!-- Astotharam Info -->
+    <div class="mb-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+      <h3 class="font-semibold text-gray-700 mb-2">Astotharam Details:</h3>
+      <ul class="text-sm text-gray-600 space-y-1">
+        <li><strong>Title:</strong> {{ astotharam.display_title }}</li>
+        <li><strong>Language:</strong> {{ astotharam.get_language_display }}</li>
+        <li><strong>Category:</strong> {{ astotharam.get_category_display }}</li>
+        <li><strong>Owner:</strong> {{ astotharam.owner.username }}</li>
+      </ul>
+    </div>
+
+    <!-- Form -->
+    <form method="post">
+      {% csrf_token %}
+      <div class="flex flex-col sm:flex-row gap-3">
+        <button type="submit"
+                class="flex-1 px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-lg shadow-md transition font-semibold">
+          <i class="fa-solid fa-trash"></i> Yes, Delete Astotharam
+        </button>
+        <a href="{% url 'astotharam_view' astotharam.id %}"
+           class="flex-1 px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg transition font-semibold text-center">
+          <i class="fa-solid fa-times"></i> Cancel
+        </a>
+      </div>
+    </form>
+
+  </div>
+</div>
+{% endblock %}

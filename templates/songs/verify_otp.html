@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% block title %}🔢 Verify OTP | Swamiye Saranam Ayyappa{% endblock %}
+
+{% block content %}
+<div class="min-h-screen flex items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 p-6">
+  <div class="bg-white shadow-2xl rounded-3xl w-full max-w-md p-8 text-center relative overflow-hidden border-t-4 border-amber-500">
+    
+    <!-- Decorative Background -->
+    <div class="absolute -top-24 -right-24 w-64 h-64 bg-gradient-to-br from-orange-400 to-amber-500 opacity-20 blur-3xl rounded-full pointer-events-none"></div>
+
+    <!-- Header -->
+    <h1 class="text-2xl font-extrabold text-amber-700 mb-3">🔐 Verify OTP</h1>
+    <p class="text-gray-600 text-sm mb-6">Enter the 6-digit code sent to your registered mobile number.</p>
+
+    <!-- OTP Form -->
+    <form method="POST" class="space-y-6">
+      {% csrf_token %}
+
+      <div class="flex justify-between max-w-xs mx-auto mb-6">
+        {% for i in "123456" %}
+        <input type="text" maxlength="1"
+               class="otp-input w-10 h-12 text-center text-xl font-semibold border border-amber-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-all"
+               name="otp_digit_{{ forloop.counter }}">
+        {% endfor %}
+      </div>
+
+      <input type="hidden" name="otp" id="otp_final">
+
+      <button type="submit"
+        class="w-full bg-gradient-to-r from-amber-600 to-orange-600 text-white font-semibold py-3 rounded-lg shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all duration-200">
+        ✅ Verify OTP
+      </button>
+    </form>
+
+    <!-- Timer + Resend -->
+    <div class="mt-6 text-sm text-gray-600">
+      <p id="timer">⏳ Resend available in <span id="timeLeft">30</span>s</p>
+      <button id="resendBtn" type="button"
+        onclick="window.location.href='{% url 'resend_otp' %}'"
+        class="text-amber-600 font-medium hidden hover:underline">
+  🔄 Resend OTP
+</button>
+
+    </div>
+
+    <!-- Messages -->
+    {% if messages %}
+      <div class="mt-6 space-y-2">
+        {% for message in messages %}
+          <div class="p-3 rounded-md text-sm {% if message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-green-100 text-green-700{% endif %}">
+            {{ message }}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+  </div>
+</div>
+
+<script>
+  // Auto-focus OTP boxes
+  const inputs = document.querySelectorAll('.otp-input');
+  inputs.forEach((input, index) => {
+    input.addEventListener('input', (e) => {
+      if (input.value.length === 1 && index < inputs.length - 1) {
+        inputs[index + 1].focus();
+      }
+      // Combine OTP
+      document.getElementById('otp_final').value = Array.from(inputs).map(i => i.value).join('');
+    });
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && !input.value && index > 0) {
+        inputs[index - 1].focus();
+      }
+    });
+  });
+
+  // Timer for resend button
+  let countdown = 30;
+  const timeEl = document.getElementById('timeLeft');
+  const resendBtn = document.getElementById('resendBtn');
+  const timer = setInterval(() => {
+    countdown--;
+    timeEl.textContent = countdown;
+    if (countdown <= 0) {
+      clearInterval(timer);
+      document.getElementById('timer').classList.add('hidden');
+      resendBtn.classList.remove('hidden');
+    }
+  }, 1000);
+</script>
+
+<style>
+  input.otp-input::-webkit-outer-spin-button,
+  input.otp-input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input.otp-input {
+    -moz-appearance: textfield;
+  }
+</style>
+{% endblock %}

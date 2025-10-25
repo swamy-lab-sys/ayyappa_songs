@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🕉️ Ayyappa Bhajan Songs - Welcome</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #451a03 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .glow-particles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            z-index: 0;
+        }
+
+        .particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: #fbbf24;
+            border-radius: 50%;
+            animation: float 6s infinite ease-in-out;
+            box-shadow: 0 0 20px #fbbf24;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0) translateX(0); opacity: 0.3; }
+            50% { transform: translateY(-100px) translateX(50px); opacity: 1; }
+        }
+
+        .welcome-container {
+            position: relative;
+            z-index: 1;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 60px 50px;
+            max-width: 600px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            animation: slideIn 1s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .diya {
+            font-size: 80px;
+            animation: glow 2s infinite alternate;
+            margin-bottom: 20px;
+        }
+
+        @keyframes glow {
+            from { text-shadow: 0 0 20px #f59e0b, 0 0 40px #f59e0b; }
+            to { text-shadow: 0 0 40px #f59e0b, 0 0 80px #f59e0b, 0 0 120px #fbbf24; }
+        }
+
+        h1 {
+            font-size: 36px;
+            color: #92400e;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .tagline {
+            font-size: 18px;
+            color: #78350f;
+            margin-bottom: 30px;
+            font-style: italic;
+        }
+
+        .highlights {
+            background: linear-gradient(135deg, #fef3c7, #fde68a);
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            border-left: 5px solid #f59e0b;
+        }
+
+        .highlights p {
+            color: #78350f;
+            font-size: 16px;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .highlights p::before {
+            content: "✨";
+            margin-right: 10px;
+        }
+
+        .button-group {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .btn {
+            padding: 15px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: white;
+            box-shadow: 0 5px 20px rgba(245, 158, 11, 0.4);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(245, 158, 11, 0.6);
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            box-shadow: 0 5px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-secondary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 30px rgba(16, 185, 129, 0.6);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 2px solid #92400e;
+            color: #92400e;
+        }
+
+        .btn-outline:hover {
+            background: #92400e;
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        .footer-text {
+            margin-top: 30px;
+            color: #78350f;
+            font-size: 14px;
+        }
+
+        @media (max-width: 768px) {
+            .welcome-container {
+                padding: 40px 30px;
+                max-width: 90%;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            .diya {
+                font-size: 60px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="glow-particles">
+        <div class="particle" style="left: 10%; top: 20%; animation-delay: 0s;"></div>
+        <div class="particle" style="left: 30%; top: 60%; animation-delay: 1s;"></div>
+        <div class="particle" style="left: 60%; top: 30%; animation-delay: 2s;"></div>
+        <div class="particle" style="left: 80%; top: 70%; animation-delay: 3s;"></div>
+        <div class="particle" style="left: 50%; top: 10%; animation-delay: 1.5s;"></div>
+        <div class="particle" style="left: 20%; top: 80%; animation-delay: 2.5s;"></div>
+    </div>
+
+    <div class="welcome-container">
+        <div class="diya">🪔</div>
+        <h1>Ayyappa Bhajan Songs</h1>
+        <p class="tagline">Listen. Learn. Sing with Bhakti.</p>
+
+        <div class="highlights">
+            <p>Multilingual Devotional Songs — Tamil | Telugu | English</p>
+            <p>Offline Ready • Free for Devotees</p>
+            <p>Secure & Sacred Lyrics Collection</p>
+        </div>
+
+        <div class="button-group">
+            <a href="{% url 'login' %}" class="btn btn-primary">🔹 Login with Account</a>
+            <a href="{% url 'register' %}" class="btn btn-secondary">🔹 Create New Account</a>
+            <a href="{% url 'song_list' %}" class="btn btn-outline">Continue as Guest</a>
+        </div>
+
+        <p class="footer-text">Swamiye Saranam Ayyappa 🙏</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const particles = document.querySelectorAll('.particle');
+            particles.forEach(particle => {
+                const randomSize = Math.random() * 6 + 2;
+                particle.style.width = randomSize + 'px';
+                particle.style.height = randomSize + 'px';
+            });
+        });
+    </script>
+</body>
+</html>

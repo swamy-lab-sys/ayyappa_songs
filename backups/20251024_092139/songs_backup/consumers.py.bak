@@ -1,0 +1,75 @@
+"""
+WebSocket consumers for real-time notifications
+"""
+import json
+from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.db import database_sync_to_async
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+
+class NotificationConsumer(AsyncWebsocketConsumer):
+    """Real-time notification consumer for admin users"""
+    
+    async def connect(self):
+        """Handle WebSocket connection"""
+        self.user = self.scope['user']
+        
+        if self.user.is_authenticated and self.user.is_staff:
+            self.group_name = 'admin_notifications'
+            
+            await self.channel_layer.group_add(
+                self.group_name,
+                self.channel_name
+            )
+            
+            await self.accept()
+            
+            pending_count = await self.get_pending_count()
+            await self.send(text_data=json.dumps({
+                'type': 'pending_count',
+                'count': pending_count
+            }))
+        else:
+            await self.close()
+    
+    async def disconnect(self, close_code):
+        """Handle WebSocket disconnection"""
+        if hasattr(self, 'group_name'):
+            await self.channel_layer.group_discard(
+                self.group_name,
+                self.channel_name
+            )
+    
+    async def receive(self, text_data):
+        """Handle incoming WebSocket messages"""
+        try:
+            data = json.loads(text_data)
+            message_type = data.get('type')
+            
+            if message_type == 'get_pending_count':
+                pending_count = await self.get_pending_count()
+                await self.send(text_data=json.dumps({
+                    'type': 'pending_count',
+                    'count': pending_count
+                }))
+        except json.JSONDecodeError:
+            pass
+    
+    async def notification_update(self, event):
+        """Handle notification update from channel layer"""
+        await self.send(text_data=json.dumps({
+            'type': 'new_request',
+            'message': event['message'],
+            'count': event['count'],
+            'user': event.get('user', 'Unknown'),
+            'song': event.get('song', 'Unknown'),
+            'request_id': event.get('request_id')
+        }))
+    
+    @database_sync_to_async
+    def get_pending_count(self):
+        """Get count of pending access requests"""
+        from songs.models import AccessRequest
+        return AccessRequest.objects.filter(status='pending').count()

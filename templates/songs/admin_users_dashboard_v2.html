@@ -1,0 +1,543 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}User Management - Admin Dashboard{% endblock %}
+
+{% block extra_head %}
+<style>
+  .password-toggle {
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .password-masked {
+    font-family: 'Courier New', monospace;
+    letter-spacing: 2px;
+  }
+  @keyframes pulse-badge {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+  }
+  .pulse-badge {
+    animation: pulse-badge 2s infinite;
+  }
+  table {
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+  thead th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background: linear-gradient(to right, #fef3c7, #fed7aa);
+  }
+  tbody tr:nth-child(even) {
+    background-color: #fffbeb;
+  }
+  tbody tr:hover {
+    background-color: #fef3c7;
+    transform: scale(1.001);
+    box-shadow: 0 2px 8px rgba(217, 119, 6, 0.1);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  <!-- Header -->
+  <div class="mb-8">
+    <div class="flex items-center justify-between">
+      <div>
+        <h1 class="text-3xl font-bold text-gray-800 flex items-center gap-3">
+          <span class="text-4xl">🪔</span>
+          User Management Dashboard
+        </h1>
+        <p class="text-gray-600 mt-2">Manage devotees and their access permissions</p>
+      </div>
+      <div class="flex gap-3">
+        <a href="{% url 'admin_users_dashboard' %}?export=pdf" 
+           class="bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg transition flex items-center gap-2">
+          <i class="fa-solid fa-file-pdf"></i>
+          Download PDF Report
+        </a>
+        <a href="{% url 'song_list' %}" 
+           class="bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-lg font-medium shadow-lg transition flex items-center gap-2">
+          <i class="fa-solid fa-music"></i>
+          Back to Songs
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats Cards -->
+  <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-500 text-sm font-medium uppercase">Total Users</p>
+          <p class="text-3xl font-bold text-gray-800">{{ total_users }}</p>
+        </div>
+        <div class="text-4xl">👥</div>
+      </div>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-purple-500">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-500 text-sm font-medium uppercase">Admin Users</p>
+          <p class="text-3xl font-bold text-gray-800">{{ total_staff }}</p>
+        </div>
+        <div class="text-4xl">🛡️</div>
+      </div>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-500 text-sm font-medium uppercase">Active Users</p>
+          <p class="text-3xl font-bold text-gray-800">{{ total_active }}</p>
+        </div>
+        <div class="text-4xl">✅</div>
+      </div>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-amber-500">
+      <div class="flex items-center justify-between">
+        <div>
+          <p class="text-gray-500 text-sm font-medium uppercase">Current Page</p>
+          <p class="text-3xl font-bold text-gray-800">{{ page_obj.number }}/{{ page_obj.paginator.num_pages }}</p>
+        </div>
+        <div class="text-4xl">📄</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Filters -->
+  <div class="bg-white rounded-xl shadow-md p-6 mb-8">
+    <form method="get" class="grid grid-cols-1 md:grid-cols-5 gap-4">
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">🔍 Search</label>
+        <input type="text" name="search" value="{{ search }}" 
+               placeholder="Username, email..." 
+               class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent">
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">🌍 Region</label>
+        <select name="region" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent">
+          <option value="">All Regions</option>
+          {% for region in regions %}
+          <option value="{{ region }}" {% if region == filter_region %}selected{% endif %}>{{ region }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">🗣️ Language</label>
+        <select name="language" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent">
+          <option value="">All Languages</option>
+          <option value="tamil" {% if filter_language == 'tamil' %}selected{% endif %}>Tamil</option>
+          <option value="telugu" {% if filter_language == 'telugu' %}selected{% endif %}>Telugu</option>
+          <option value="english" {% if filter_language == 'english' %}selected{% endif %}>English</option>
+        </select>
+      </div>
+      
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-2">👤 Role</label>
+        <select name="role" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-amber-500 focus:border-transparent">
+          <option value="">All Roles</option>
+          <option value="staff" {% if filter_role == 'staff' %}selected{% endif %}>Staff</option>
+          <option value="user" {% if filter_role == 'user' %}selected{% endif %}>Regular User</option>
+        </select>
+      </div>
+      
+      <div class="flex items-end gap-2">
+        <button type="submit" class="flex-1 bg-amber-600 hover:bg-amber-700 text-white px-6 py-2 rounded-lg transition font-medium">
+          Apply
+        </button>
+        <a href="{% url 'admin_users_dashboard' %}" class="bg-gray-300 hover:bg-gray-400 text-gray-800 px-4 py-2 rounded-lg transition">
+          Clear
+        </a>
+      </div>
+    </form>
+  </div>
+
+  <!-- Users Table -->
+  <div class="bg-white rounded-xl shadow-md overflow-hidden">
+    <div class="overflow-x-auto max-h-[600px] overflow-y-auto">
+      <table class="w-full">
+        <thead>
+          <tr>
+            <th class="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b-2 border-amber-300">ID</th>
+            <th class="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b-2 border-amber-300">User Details</th>
+            <th class="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b-2 border-amber-300">Password</th>
+            <th class="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b-2 border-amber-300">Region/City</th>
+            <th class="px-4 py-4 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b-2 border-amber-300">Language</th>
+            <th class="px-4 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider border-b-2 border-amber-300">Contact</th>
+            <th class="px-4 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider border-b-2 border-amber-300">Access</th>
+            <th class="px-4 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider border-b-2 border-amber-300">Role</th>
+            <th class="px-4 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider border-b-2 border-amber-300">Joined</th>
+            <th class="px-4 py-4 text-center text-xs font-bold text-gray-700 uppercase tracking-wider border-b-2 border-amber-300">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+          {% for user in page_obj %}
+          <tr class="transition-all duration-200">
+            <td class="px-4 py-3 text-sm font-medium text-gray-900">
+              #{{ user.id }}
+            </td>
+            <td class="px-4 py-3">
+              <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center text-white font-bold text-lg shadow-md">
+                  {{ user.username|slice:":1"|upper }}
+                </div>
+                <div>
+                  <p class="font-semibold text-gray-800">{{ user.username }}</p>
+                  <p class="text-sm text-gray-500">{{ user.email }}</p>
+                </div>
+              </div>
+            </td>
+            <td class="px-4 py-3">
+              <div class="flex items-center gap-2">
+                <span class="password-masked text-gray-600" data-user-id="{{ user.id }}">
+                  ••••••••
+                </span>
+                <button onclick="togglePassword({{ user.id }})" 
+                        class="password-toggle text-amber-600 hover:text-amber-700 text-sm font-medium">
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+              </div>
+              <input type="hidden" id="pwd-{{ user.id }}" value="{{ user.password }}">
+            </td>
+            <td class="px-4 py-3">
+              {% if user.profile %}
+              <p class="text-gray-800 font-medium">{{ user.profile.region|default:"—" }}</p>
+              <p class="text-sm text-gray-500">{{ user.profile.city|default:"—" }}</p>
+              {% else %}
+              <p class="text-gray-400 text-sm">No profile</p>
+              {% endif %}
+            </td>
+            <td class="px-4 py-3">
+              {% if user.profile %}
+              <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">
+                {{ user.profile.get_language_preference_display }}
+              </span>
+              {% else %}
+              <span class="text-gray-400">—</span>
+              {% endif %}
+            </td>
+            <td class="px-4 py-3 text-center">
+              {% if user.profile and user.profile.contact %}
+              <span class="text-gray-800 text-sm">{{ user.profile.contact }}</span>
+              {% else %}
+              <span class="text-gray-400">—</span>
+              {% endif %}
+            </td>
+            <td class="px-4 py-3 text-center">
+              <span class="text-2xl font-bold text-amber-600">{{ user.access_count }}</span>
+            </td>
+            <td class="px-4 py-3 text-center">
+              {% if user.is_staff %}
+              <span class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-xs font-semibold flex items-center justify-center gap-1 w-fit mx-auto">
+                🛡️ Admin
+              </span>
+              {% else %}
+              <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
+                User
+              </span>
+              {% endif %}
+            </td>
+            <td class="px-4 py-3 text-center text-sm text-gray-600">
+              {{ user.date_joined|date:"M d, Y" }}
+            </td>
+            <td class="px-4 py-3">
+              <div class="flex items-center justify-center gap-2">
+                <button onclick="viewUserDetails({{ user.id }})" 
+                        class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-xs transition shadow">
+                  <i class="fa-solid fa-eye"></i>
+                </button>
+                <button onclick="manageSongAccess({{ user.id }}, '{{ user.username|escapejs }}')" 
+                        class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg text-xs transition shadow">
+                  <i class="fa-solid fa-music"></i>
+                </button>
+                <a href="{% url 'admin_users_dashboard' %}?export=pdf&user={{ user.id }}" 
+                   class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-xs transition shadow">
+                  <i class="fa-solid fa-file-pdf"></i>
+                </a>
+              </div>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="10" class="px-6 py-12 text-center text-gray-500">
+              <div class="text-6xl mb-4">🔍</div>
+              <p class="text-lg">No users found matching your criteria.</p>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Pagination -->
+  {% if page_obj.has_other_pages %}
+  <div class="flex items-center justify-center gap-2 mt-8">
+    {% if page_obj.has_previous %}
+    <a href="?page=1{% if search %}&search={{ search }}{% endif %}{% if filter_region %}&region={{ filter_region }}{% endif %}{% if filter_language %}&language={{ filter_language }}{% endif %}{% if filter_role %}&role={{ filter_role }}{% endif %}" 
+       class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition shadow">
+      « First
+    </a>
+    <a href="?page={{ page_obj.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if filter_region %}&region={{ filter_region }}{% endif %}{% if filter_language %}&language={{ filter_language }}{% endif %}{% if filter_role %}&role={{ filter_role }}{% endif %}" 
+       class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition shadow">
+      ‹ Previous
+    </a>
+    {% endif %}
+    
+    <span class="px-6 py-2 bg-amber-600 text-white rounded-lg font-semibold shadow">
+      Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+    </span>
+    
+    {% if page_obj.has_next %}
+    <a href="?page={{ page_obj.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if filter_region %}&region={{ filter_region }}{% endif %}{% if filter_language %}&language={{ filter_language }}{% endif %}{% if filter_role %}&role={{ filter_role }}{% endif %}" 
+       class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition shadow">
+      Next ›
+    </a>
+    <a href="?page={{ page_obj.paginator.num_pages }}{% if search %}&search={{ search }}{% endif %}{% if filter_region %}&region={{ filter_region }}{% endif %}{% if filter_language %}&language={{ filter_language }}{% endif %}{% if filter_role %}&role={{ filter_role }}{% endif %}" 
+       class="px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition shadow">
+      Last »
+    </a>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+
+<!-- User Details Modal (reuse existing) -->
+<div id="user-details-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+    <div class="bg-gradient-to-r from-amber-600 to-orange-600 p-6 rounded-t-2xl">
+      <div class="flex items-center justify-between">
+        <h2 class="text-2xl font-bold text-white">👤 User Details</h2>
+        <button onclick="closeModal('user-details-modal')" class="text-white hover:bg-amber-700 p-2 rounded-full transition">
+          <i class="fa-solid fa-times text-xl"></i>
+        </button>
+      </div>
+    </div>
+    <div id="user-details-content" class="p-6"></div>
+  </div>
+</div>
+
+<!-- Song Access Modal (reuse existing) -->
+<div id="song-access-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+  <div class="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden">
+    <div class="bg-gradient-to-r from-green-600 to-emerald-600 p-6">
+      <div class="flex items-center justify-between">
+        <div>
+          <h2 class="text-2xl font-bold text-white">🎵 Manage Song Access</h2>
+          <p id="song-access-username" class="text-white/90 mt-1"></p>
+        </div>
+        <button onclick="closeModal('song-access-modal')" class="text-white hover:bg-green-700 p-2 rounded-full transition">
+          <i class="fa-solid fa-times text-xl"></i>
+        </button>
+      </div>
+    </div>
+    <div class="p-6 max-h-[60vh] overflow-y-auto">
+      <div id="song-access-content"></div>
+    </div>
+    <div class="bg-gray-50 p-6 flex items-center justify-end gap-3 border-t">
+      <button onclick="closeModal('song-access-modal')" class="px-6 py-2 bg-gray-300 hover:bg-gray-400 rounded-lg transition">
+        Cancel
+      </button>
+      <button onclick="saveSongAccess()" class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg transition font-semibold">
+        Save Changes
+      </button>
+    </div>
+  </div>
+</div>
+
+{% csrf_token %}
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+let currentUserId = null;
+
+function togglePassword(userId) {
+  const pwdSpan = document.querySelector(`[data-user-id="${userId}"]`);
+  const pwdInput = document.getElementById(`pwd-${userId}`);
+  const btn = pwdSpan.nextElementSibling;
+  
+  if (pwdSpan.textContent === '••••••••') {
+    pwdSpan.textContent = pwdInput.value;
+    pwdSpan.classList.remove('password-masked');
+    pwdSpan.classList.add('text-xs');
+    btn.innerHTML = '<i class="fa-solid fa-eye-slash"></i>';
+  } else {
+    pwdSpan.textContent = '••••••••';
+    pwdSpan.classList.add('password-masked');
+    pwdSpan.classList.remove('text-xs');
+    btn.innerHTML = '<i class="fa-solid fa-eye"></i>';
+  }
+}
+
+async function viewUserDetails(userId) {
+  const modal = document.getElementById('user-details-modal');
+  const content = document.getElementById('user-details-content');
+  modal.classList.remove('hidden');
+  content.innerHTML = '<div class="flex justify-center py-8"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-amber-600"></div></div>';
+  
+  try {
+    const response = await fetch(`/admin/user/${userId}/detail/`);
+    const data = await response.json();
+    
+    content.innerHTML = `
+      <div class="space-y-6">
+        <div class="grid grid-cols-2 gap-4">
+          <div class="p-4 bg-gray-50 rounded-lg">
+            <p class="text-xs text-gray-500 uppercase mb-1">Username</p>
+            <p class="font-semibold text-gray-800">${data.username}</p>
+          </div>
+          <div class="p-4 bg-gray-50 rounded-lg">
+            <p class="text-xs text-gray-500 uppercase mb-1">Email</p>
+            <p class="font-semibold text-gray-800">${data.email}</p>
+          </div>
+          <div class="p-4 bg-gray-50 rounded-lg">
+            <p class="text-xs text-gray-500 uppercase mb-1">Joined</p>
+            <p class="font-semibold text-gray-800">${data.date_joined}</p>
+          </div>
+          <div class="p-4 bg-gray-50 rounded-lg">
+            <p class="text-xs text-gray-500 uppercase mb-1">Role</p>
+            <p class="font-semibold ${data.is_staff ? 'text-purple-600' : 'text-green-600'}">
+              ${data.is_staff ? '🛡️ Admin' : '✅ User'}
+            </p>
+          </div>
+        </div>
+        ${data.profile ? `
+        <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+          <h3 class="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+            <i class="fa-solid fa-user-circle text-blue-600"></i>
+            Profile Information
+          </h3>
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <p class="text-xs text-gray-600 mb-1">Language</p>
+              <p class="text-gray-800 font-medium">${data.profile.language}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-600 mb-1">Region</p>
+              <p class="text-gray-800 font-medium">${data.profile.region}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-600 mb-1">City</p>
+              <p class="text-gray-800 font-medium">${data.profile.city}</p>
+            </div>
+            <div>
+              <p class="text-xs text-gray-600 mb-1">Contact</p>
+              <p class="text-gray-800 font-medium">${data.profile.contact}</p>
+            </div>
+          </div>
+        </div>
+        ` : ''}
+        <div>
+          <h3 class="font-semibold text-gray-800 mb-3 flex items-center gap-2">
+            <i class="fa-solid fa-music text-green-600"></i>
+            Song Access (${data.access_count})
+          </h3>
+          <div class="space-y-2 max-h-48 overflow-y-auto">
+            ${data.accesses.length > 0 ? data.accesses.map(access => `
+              <div class="flex items-center justify-between p-3 bg-green-50 rounded-lg border border-green-200">
+                <span class="text-gray-800 font-medium">${access.song}</span>
+                <span class="text-xs text-gray-500">${access.granted_at}</span>
+              </div>
+            `).join('') : '<p class="text-gray-500 text-center py-4 bg-gray-50 rounded-lg">No song access granted</p>'}
+          </div>
+        </div>
+      </div>
+    `;
+  } catch (error) {
+    content.innerHTML = `
+      <div class="text-center py-8 text-red-600">
+        <i class="fa-solid fa-exclamation-triangle text-4xl mb-4"></i>
+        <p class="font-semibold">Failed to load user details</p>
+        <button onclick="viewUserDetails(${userId})" class="mt-4 px-4 py-2 bg-amber-600 text-white rounded-lg hover:bg-amber-700 transition">
+          Retry
+        </button>
+      </div>
+    `;
+  }
+}
+
+async function manageSongAccess(userId, username) {
+  currentUserId = userId;
+  const modal = document.getElementById('song-access-modal');
+  const content = document.getElementById('song-access-content');
+  const usernameEl = document.getElementById('song-access-username');
+  usernameEl.textContent = `Managing access for: ${username}`;
+  modal.classList.remove('hidden');
+  content.innerHTML = '<div class="flex justify-center py-8"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-green-600"></div></div>';
+  
+  try {
+    const response = await fetch(`/admin/user/${userId}/song-access/`);
+    const data = await response.json();
+    
+    content.innerHTML = `
+      <div class="space-y-2">
+        ${data.songs.map(song => `
+          <label class="flex items-center gap-3 p-3 hover:bg-gray-50 rounded-lg cursor-pointer transition border border-gray-200">
+            <input type="checkbox" 
+                   value="${song.id}" 
+                   ${song.has_access ? 'checked' : ''} 
+                   class="song-checkbox w-5 h-5 text-green-600 rounded focus:ring-green-500">
+            <span class="text-gray-800 font-medium">${song.title}</span>
+          </label>
+        `).join('')}
+      </div>
+    `;
+  } catch (error) {
+    content.innerHTML = `
+      <div class="text-center py-8 text-red-600">
+        <i class="fa-solid fa-exclamation-triangle text-4xl mb-4"></i>
+        <p class="font-semibold">Failed to load songs</p>
+        <button onclick="manageSongAccess(${userId}, '${username}')" class="mt-4 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition">
+          Retry
+        </button>
+      </div>
+    `;
+  }
+}
+
+async function saveSongAccess() {
+  if (!currentUserId) return;
+  
+  const checkboxes = document.querySelectorAll('.song-checkbox:checked');
+  const songIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+  
+  try {
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const response = await fetch(`/admin/user/${currentUserId}/song-access/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrfToken
+      },
+      body: JSON.stringify({ song_ids: songIds })
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      alert('✅ ' + data.message);
+      closeModal('song-access-modal');
+      location.reload();
+    } else {
+      alert('❌ Failed to update access');
+    }
+  } catch (error) {
+    alert('❌ Network error occurred');
+  }
+}
+
+function closeModal(modalId) {
+  document.getElementById(modalId).classList.add('hidden');
+}
+</script>
+{% endblock %}

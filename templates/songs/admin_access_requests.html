@@ -1,0 +1,247 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Access Requests - Admin{% endblock %}
+
+{% block breadcrumb_extra %}
+<span class="mx-2">›</span>
+<span class="text-amber-700 font-medium">Access Requests</span>
+{% endblock %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="{% static 'css/toast.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-8 py-8">
+  
+  <!-- Header -->
+  <div class="bg-gradient-to-r from-purple-600 to-indigo-600 rounded-lg shadow-lg p-6 mb-6 text-white">
+    <div class="flex items-center justify-between flex-wrap gap-4">
+      <div>
+        <h1 class="text-2xl font-bold mb-2">
+          <i class="fa-solid fa-inbox"></i> Access Requests Management
+        </h1>
+        <p class="text-white/90">Review and approve/deny user access requests</p>
+      </div>
+      <div class="flex gap-2">
+        <a href="{% url 'admin_users_dashboard' %}" class="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition">
+          <i class="fa-solid fa-users"></i> Users
+        </a>
+        <a href="{% url 'song_list' %}" class="px-4 py-2 bg-white/20 hover:bg-white/30 rounded-lg transition">
+          <i class="fa-solid fa-arrow-left"></i> Back
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pending Requests Section -->
+  <div class="bg-white rounded-lg shadow-md overflow-hidden mb-8">
+    <div class="bg-gradient-to-r from-yellow-100 to-orange-100 px-6 py-4 border-b border-yellow-200">
+      <h2 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+        <i class="fa-solid fa-clock text-yellow-600"></i>
+        Pending Requests ({{ pending_requests.count }})
+      </h2>
+    </div>
+    
+    {% if pending_requests %}
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Song</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Message</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Requested</th>
+            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          {% for request in pending_requests %}
+          <tr class="hover:bg-amber-50 transition-colors pending-request">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <div class="flex items-center">
+                <div class="w-10 h-10 bg-gradient-to-br from-amber-400 to-orange-500 rounded-full flex items-center justify-center text-white font-bold text-lg">
+                  {{ request.user.username|slice:":1"|upper }}
+                </div>
+                <div class="ml-3">
+                  <p class="font-semibold text-gray-800">{{ request.user.username }}</p>
+                  <p class="text-sm text-gray-500">{{ request.user.email }}</p>
+                </div>
+              </div>
+            </td>
+            <td class="px-6 py-4">
+              <div>
+                <p class="font-semibold text-gray-800">{{ request.song.display_title }}</p>
+                <p class="text-sm text-gray-500">Owner: {{ request.song.owner.username }}</p>
+              </div>
+            </td>
+            <td class="px-6 py-4">
+              {% if request.message %}
+              <p class="text-sm text-gray-600 italic max-w-xs">{{ request.message|truncatewords:20 }}</p>
+              {% else %}
+              <span class="text-gray-400 text-sm">No message</span>
+              {% endif %}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              {{ request.requested_at|date:"M d, Y" }}<br>
+              <span class="text-xs text-gray-400">{{ request.requested_at|time:"g:i A" }}</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-center">
+              <div class="flex items-center justify-center gap-2">
+                <button 
+                  onclick="approveRequest({{ request.id }}, '{{ request.user.username|escapejs }}', '{{ request.song.display_title|escapejs }}')"
+                  class="px-4 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg text-sm transition flex items-center gap-1">
+                  <i class="fa-solid fa-check"></i> Approve
+                </button>
+                <button 
+                  onclick="denyRequest({{ request.id }}, '{{ request.user.username|escapejs }}', '{{ request.song.display_title|escapejs }}')"
+                  class="px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg text-sm transition flex items-center gap-1">
+                  <i class="fa-solid fa-xmark"></i> Deny
+                </button>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+      <i class="fa-solid fa-check-circle text-6xl text-green-300 mb-4"></i>
+      <p class="text-lg text-gray-500">No pending requests</p>
+      <p class="text-sm text-gray-400">All caught up!</p>
+    </div>
+    {% endif %}
+  </div>
+
+  <!-- Reviewed Requests Section -->
+  <div class="bg-white rounded-lg shadow-md overflow-hidden">
+    <div class="bg-gradient-to-r from-gray-100 to-slate-100 px-6 py-4 border-b border-gray-200">
+      <h2 class="text-lg font-semibold text-gray-800 flex items-center gap-2">
+        <i class="fa-solid fa-history text-gray-600"></i>
+        Recently Reviewed (Last 50)
+      </h2>
+    </div>
+    
+    {% if reviewed_requests %}
+    <div class="overflow-x-auto">
+      <table class="w-full">
+        <thead class="bg-gray-50">
+          <tr>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Song</th>
+            <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reviewed</th>
+            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Reviewed By</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          {% for request in reviewed_requests %}
+          <tr class="hover:bg-gray-50 transition-colors">
+            <td class="px-6 py-4 whitespace-nowrap">
+              <p class="font-semibold text-gray-800">{{ request.user.username }}</p>
+              <p class="text-sm text-gray-500">{{ request.user.email }}</p>
+            </td>
+            <td class="px-6 py-4">
+              <p class="font-semibold text-gray-800">{{ request.song.display_title }}</p>
+              <p class="text-sm text-gray-500">{{ request.song.owner.username }}</p>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-center">
+              {% if request.status == 'approved' %}
+              <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                ✅ Approved
+              </span>
+              {% else %}
+              <span class="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm font-medium">
+                ❌ Denied
+              </span>
+              {% endif %}
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+              {{ request.reviewed_at|date:"M d, Y" }}<br>
+              <span class="text-xs text-gray-400">{{ request.reviewed_at|time:"g:i A" }}</span>
+            </td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+              {{ request.reviewed_by.username }}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <div class="text-center py-12">
+      <i class="fa-solid fa-inbox text-6xl text-gray-300 mb-4"></i>
+      <p class="text-lg text-gray-500">No reviewed requests yet</p>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+
+{% csrf_token %}
+
+<script src="{% static 'js/app.js' %}"></script>
+<script>
+// Approve Request
+function approveRequest(requestId, username, songTitle) {
+  if (!confirm(`Approve access for ${username} to "${songTitle}"?`)) {
+    return;
+  }
+  
+  const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+  
+  fetch(`/songs/admin/grant-access/${requestId}/`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': csrfToken,
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      showToast('✅ ' + data.message, 'success');
+      setTimeout(() => location.reload(), 1000);
+    } else {
+      showToast('❌ Failed to approve request', 'error');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    showToast('⚠️ Network error occurred', 'error');
+  });
+}
+
+// Deny Request
+function denyRequest(requestId, username, songTitle) {
+  if (!confirm(`Deny access for ${username} to "${songTitle}"?`)) {
+    return;
+  }
+  
+  const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+  
+  fetch(`/songs/admin/deny-access/${requestId}/`, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': csrfToken,
+      'X-Requested-With': 'XMLHttpRequest'
+    }
+  })
+  .then(response => response.json())
+  .then(data => {
+    if (data.success) {
+      showToast('✅ ' + data.message, 'success');
+      setTimeout(() => location.reload(), 1000);
+    } else {
+      showToast('❌ Failed to deny request', 'error');
+    }
+  })
+  .catch(error => {
+    console.error('Error:', error);
+    showToast('⚠️ Network error occurred', 'error');
+  });
+}
+</script>
+{% endblock %}
