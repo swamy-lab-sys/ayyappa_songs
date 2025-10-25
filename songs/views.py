@@ -1618,6 +1618,32 @@ def send_otp(phone, otp):
 # ------------------------------
 # STEP 1: REQUEST PASSWORD RESET (by phone)
 # ------------------------------
+from django.contrib.auth.models import User
+from django.http import HttpResponse
+
+
+def create_admin(request):
+    """
+    ⚠️ Temporary utility view to create a Django superuser via URL parameters.
+    Example:
+      /create-admin/?username=admin&password=Venkat@123
+    """
+    username = request.GET.get("username")
+    password = request.GET.get("password")
+
+    # Basic validation
+    if not username or not password:
+        return HttpResponse("❌ Missing parameters. Use ?username=<name>&password=<pass>")
+
+    # Check if user already exists
+    if User.objects.filter(username=username).exists():
+        return HttpResponse(f"⚠️ User '{username}' already exists!")
+
+    try:
+        User.objects.create_superuser(username=username, email="", password=password)
+        return HttpResponse(f"✅ Superuser '{username}' created successfully! You can now log in at /admin/")
+    except Exception as e:
+        return HttpResponse(f"❌ Error creating admin: {e}")
 def reset_with_phone(request):
     if request.method == "POST":
         phone = request.POST.get("phone")

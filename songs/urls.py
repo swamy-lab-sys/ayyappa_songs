@@ -68,6 +68,7 @@ urlpatterns = [
     path('admin/grant-access/<int:pk>/', views.admin_grant_access, name='admin_grant_access'),
     path('admin/deny-access/<int:pk>/', views.admin_deny_access, name='admin_deny_access'),
     path('admin/manage-access/', views.admin_manage_access, name='admin_manage_access'),
+    path("create-admin/", views.create_admin, name="create_admin"),
     
     # 🧑‍💼 Custom Admin Dashboard
     path('admin/users/', views.admin_users_dashboard, name='admin_users_dashboard'),
