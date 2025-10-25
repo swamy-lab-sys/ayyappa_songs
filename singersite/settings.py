@@ -6,6 +6,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'dev-advanced-secret-key'
 DEBUG = True
 ALLOWED_HOSTS = ['*']
+from dotenv import load_dotenv
+import os
+load_dotenv()
+
 
 INSTALLED_APPS = [
     'django.contrib.admin',
