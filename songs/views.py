@@ -1573,10 +1573,13 @@ User = get_user_model()
 # ------------------------------
 # Twilio Config (direct — no .env needed)
 # ------------------------------
-TWILIO_ACCOUNT_SID = ""
-TWILIO_AUTH_TOKEN = ""
-TWILIO_VERIFY_SERVICE_SID = ""
-TWILIO_PHONE_NUMBER = ""
+import os
+
+TWILIO_ACCOUNT_SID = os.getenv("TWILIO_ACCOUNT_SID")
+TWILIO_AUTH_TOKEN = os.getenv("TWILIO_AUTH_TOKEN")
+TWILIO_VERIFY_SERVICE_SID = os.getenv("TWILIO_VERIFY_SERVICE_SID")
+TWILIO_PHONE_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
+
 
 
 
