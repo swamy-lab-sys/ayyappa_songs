@@ -13,7 +13,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-fallback-secret-key')
 
-DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
+# DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 # DEBUG = True
 
 ALLOWED_HOSTS = ['*']
@@ -159,14 +159,20 @@ USE_TZ = True
 # -----------------------------
 # 🔹 Static and Media Files
 # -----------------------------
+# -----------------------------
+# 🔹 Static and Media Files
+# -----------------------------
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+# ✅ Media files
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = '/opt/render/project/src/media'  # Persistent path on Render (if disk attached)
+    
+
 
 # -----------------------------
 # 🔹 REST Framework
