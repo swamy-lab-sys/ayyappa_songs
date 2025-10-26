@@ -64,16 +64,13 @@
         <textarea name="content_en" rows="8" class="w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-amber-500">{{ astotharam.content_en }}</textarea>
       </div>
       
-      <div class="flex gap-3">
-        <button type="submit" class="px-6 py-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-lg font-medium">
-          <i class="fa-solid fa-save"></i> Save
+      <div class="flex flex-wrap gap-3 mt-8">
+        <button type="submit" class="px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-md shadow-md transition flex items-center gap-2">
+          <i class="fa-solid fa-save"></i> Save Song
         </button>
-        <a href="{% url 'astotharam_list' %}" class="px-6 py-2 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-lg">
-          Cancel
+        <a href="{% url 'astotharam_list' %}" class="px-6 py-3 bg-gray-200 hover:bg-gray-300 text-gray-800 rounded-md transition flex items-center gap-2">
+          <i class="fa-solid fa-times"></i> Cancel
         </a>
-         <button type="submit" class="px-6 py-2 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white rounded-lg font-medium">
-          <i class="fa-solid fa-save"></i> Save
-        </button>
       </div>
     </form>
   </div>
