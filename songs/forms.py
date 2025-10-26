@@ -123,13 +123,7 @@ from songs.models import UserProfile, LANGUAGE_CHOICES
 class EnhancedUserRegistrationForm(UserCreationForm):
     """Enhanced registration with region, language, and unique contact check"""
 
-    email = forms.EmailField(
-        required=True,
-        widget=forms.EmailInput(attrs={
-            "class": "w-full border border-amber-300 rounded-md p-2",
-            "placeholder": "your@email.com"
-        })
-    )
+   
 
     language_preference = forms.ChoiceField(
         choices=LANGUAGE_CHOICES,

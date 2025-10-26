@@ -2,141 +2,100 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 import dj_database_url
+import socket
 
-# Load environment variables from .env (for local)
+# -----------------------------
+# 🔹 Load Environment Variables
+# -----------------------------
 load_dotenv()
 
 # -----------------------------
-# 🔹 Basic Django Config
+# 🔹 Basic Config
 # -----------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
+SECRET_KEY = os.environ.get("SECRET_KEY", "dev-fallback-secret-key")
 
-SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-fallback-secret-key')
-
-DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
-# DEBUG = True
-
-ALLOWED_HOSTS = ['*']
+DEBUG = os.environ.get("DEBUG", "True").lower() == "true"
+ALLOWED_HOSTS = ["*"]
 
 # -----------------------------
 # 🔹 Installed Apps
 # -----------------------------
 INSTALLED_APPS = [
-    'django.contrib.admin',
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-
-    # 3rd party
-    'rest_framework',
-
-    # Local apps
-    'songs',
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "rest_framework",  # 3rd party
+    "songs",           # Local app
 ]
 
 # -----------------------------
 # 🔹 Middleware
 # -----------------------------
 MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Required for static hosting
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    "django.middleware.security.SecurityMiddleware",
+    "whitenoise.middleware.WhiteNoiseMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
 # -----------------------------
 # 🔹 URL & WSGI
 # -----------------------------
-ROOT_URLCONF = 'singersite.urls'
-WSGI_APPLICATION = 'singersite.wsgi.application'
+ROOT_URLCONF = "singersite.urls"
+WSGI_APPLICATION = "singersite.wsgi.application"
 
 # -----------------------------
 # 🔹 Templates
 # -----------------------------
 TEMPLATES = [
     {
-        'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],  # Custom templates directory
-        'APP_DIRS': True,
-        'OPTIONS': {
-            'context_processors': [
-                'django.template.context_processors.debug',
-                'django.template.context_processors.request',
-                'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [BASE_DIR / "templates"],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
             ],
         },
     },
 ]
 
 # -----------------------------
+# 🔹 Database Configuration (Dual)
 # -----------------------------
-# 🔹 Database Configuration
-# -----------------------------
-# -----------------------------
-# 🔹 Database Configuration (Safe for Render)
-# -----------------------------
-# -----------------------------
-# 🔹 Database Configuration — Works on both Local & Render Free
-# -----------------------------
-import dj_database_url
+# 1️⃣ Prefer Render PostgreSQL (production or local CRUD access)
+# 2️⃣ Fallback to SQLite if DATABASE_URL not found
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
 if DATABASE_URL:
-    # ✅ Use PostgreSQL on Render (if configured)
+    print("🌐 Using Render PostgreSQL database")
     DATABASES = {
-        'default': dj_database_url.config(
+        "default": dj_database_url.config(
             default=DATABASE_URL,
             conn_max_age=600,
-            ssl_require=True
+            ssl_require=True,
         )
     }
 else:
-    # ✅ Use SQLite
-    if os.environ.get("RENDER", False):
-        # 🟢 Running on Render → use persistent disk
-        PERSISTENT_DB_DIR = "/var/data"
-    else:
-        # 🖥️ Running locally → use project directory
-        PERSISTENT_DB_DIR = os.path.join(BASE_DIR, "data")
-
-    os.makedirs(PERSISTENT_DB_DIR, exist_ok=True)
-
+    print("💻 Using local SQLite database")
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
-            "NAME": os.path.join(PERSISTENT_DB_DIR, "db.sqlite3"),
+            "NAME": BASE_DIR / "db.sqlite3",
         }
     }
-
-
-# DATABASE_URL = os.environ.get("DATABASE_URL")
-
-# if DATABASE_URL:
-#     # ✅ Use PostgreSQL on Render
-#     DATABASES = {
-#         'default': dj_database_url.config(
-#             default=DATABASE_URL,
-#             conn_max_age=600,
-#             ssl_require=True
-#         )
-#     }
-# else:
-#     # 🧩 Local fallback (SQLite)
-#     DATABASES = {
-#         'default': {
-#             'ENGINE': 'django.db.backends.sqlite3',
-#             'NAME': BASE_DIR / 'db.sqlite3',
-#         }
-#     }
-
 
 # -----------------------------
 # 🔹 Password Validation
@@ -149,67 +108,64 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # -----------------------------
-# 🔹 Internationalization
+# 🔹 Localization
 # -----------------------------
-LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'Asia/Kolkata'  # India timezone
+LANGUAGE_CODE = "en-us"
+TIME_ZONE = "Asia/Kolkata"
 USE_I18N = True
 USE_TZ = True
 
 # -----------------------------
-# 🔹 Static and Media Files
+# 🔹 Static & Media Files
 # -----------------------------
-# -----------------------------
-# 🔹 Static and Media Files
-# -----------------------------
-STATIC_URL = '/static/'
-STATICFILES_DIRS = [BASE_DIR / 'static']
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+STATIC_URL = "/static/"
+STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = BASE_DIR / "staticfiles"
+STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # ✅ Media files
-MEDIA_URL = '/media/'
-MEDIA_ROOT = '/opt/render/project/src/media'  # Persistent path on Render (if disk attached)
-    
-
+MEDIA_URL = "/media/"
+MEDIA_ROOT = (
+    "/opt/render/project/src/media"
+    if os.environ.get("RENDER")
+    else BASE_DIR / "media"
+)
 
 # -----------------------------
 # 🔹 REST Framework
 # -----------------------------
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework.authentication.SessionAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework.authentication.SessionAuthentication",
     ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.IsAuthenticatedOrReadOnly",
     ],
 }
 
 # -----------------------------
 # 🔹 Authentication Redirects
 # -----------------------------
-LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = 'song_list'
-LOGOUT_REDIRECT_URL = 'login'
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "song_list"
+LOGOUT_REDIRECT_URL = "login"
 
 # -----------------------------
-# 🔹 Security & Render Settings
+# 🔹 Security for Render
 # -----------------------------
 CSRF_TRUSTED_ORIGINS = [
-    'https://*.onrender.com',
-    'https://ayyappa-songs.onrender.com',
+    "https://*.onrender.com",
+    "https://ayyappa-songs.onrender.com",
 ]
-
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-
-# -----------------------------
-# 🔹 Default Primary Key Field
-# -----------------------------
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 # -----------------------------
-# ✅ Debug Info
+# 🔹 Defaults
+# -----------------------------
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# -----------------------------
+# 🔹 Debug Info
 # -----------------------------
 if DEBUG:
     print("⚙️ Running in DEBUG mode — local environment active")
