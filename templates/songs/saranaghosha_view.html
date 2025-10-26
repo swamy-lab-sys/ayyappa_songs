@@ -29,8 +29,14 @@
     </div>
     
     <div class="p-6">
-      <div class="prose max-w-none">
-        <div class="whitespace-pre-wrap text-gray-700 leading-relaxed">{{ saranaghosha.get_content }}</div>
+       <!-- Body -->
+    <div class="p-8 bg-gradient-to-br from-gray-50 to-purple-50">
+      <div class="text-gray-800 leading-relaxed text-lg font-[500] space-y-3 overflow-y-auto max-h-[70vh] px-1">
+        {% for line in saranaghosha.get_content.splitlines %}
+          {% if line.strip %}
+            <p class="py-1 border-b border-gray-200 last:border-none">{{ line|safe }}</p>
+          {% endif %}
+        {% endfor %}
       </div>
       
       <div class="mt-6 pt-6 border-t flex items-center justify-between">
