@@ -183,52 +183,90 @@ def get_or_create_audio_file(youtube_url=None, audio_file=None):
     
     return None, False, "No audio source provided"
 
-
 def download_youtube_audio(youtube_url):
     """
-    Download audio from YouTube and create AudioFile instance.
-    Returns tuple: (audio_file_obj, error_message)
+    Download YouTube audio safely without cookies (Render-safe fallback)
     """
+    import tempfile, os, shutil
+    from django.core.files.base import ContentFile
+    from .models import AudioFile
+    import yt_dlp
+
     temp_dir = None
-    
     try:
         temp_dir = tempfile.mkdtemp(prefix="yt_")
         temp_path = os.path.join(temp_dir, "%(title)s.%(ext)s")
-        
+
+        # 🎯 Use multiple player clients — increases success rate drastically
+        extractor_args = {
+            "youtube": {
+                "player_client": ["android", "tv_embedded", "music", "ios"],
+            }
+        }
+
         ydl_opts = {
             "format": "bestaudio/best",
-            "noplaylist": True,
             "outtmpl": temp_path,
+            "noplaylist": True,
             "ffmpeg_location": "/usr/bin",
+            "quiet": True,
+            "geo_bypass": True,
+            "retries": 10,
+            "http_headers": {
+                "User-Agent": (
+                    "com.google.android.youtube/19.25.34 "
+                    "(Linux; U; Android 14; Pixel 8 Pro Build/UPB5.230623.007)"
+                ),
+                "Referer": "https://www.youtube.com/",
+                "Accept-Language": "en-US,en;q=0.9",
+            },
             "postprocessors": [{
                 "key": "FFmpegExtractAudio",
                 "preferredcodec": "mp3",
                 "preferredquality": "192",
             }],
-            "extractor_args": {"youtube": {"player_client": ["android"]}},
-            "http_headers": {
-                "User-Agent": "com.google.android.youtube/18.21.35 (Linux; Android 13)",
-                "Referer": "https://www.youtube.com/",
-            },
-            "retries": 5,
-            "geo_bypass": True,
+            "extractor_args": extractor_args,
         }
-        
-        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            info = ydl.extract_info(youtube_url, download=True)
-            title = info.get("title", "YouTube Audio")
-            duration = info.get("duration")
-            
-        # Find the downloaded MP3 file
+
+        # 🌀 Retry with different clients if blocked
+        clients_to_try = [
+            ["android"],
+            ["tv_embedded"],
+            ["music"],
+            ["ios"],
+            ["web"],
+        ]
+
+        info = None
+        for clients in clients_to_try:
+            ydl_opts["extractor_args"]["youtube"]["player_client"] = clients
+            try:
+                with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+                    info = ydl.extract_info(youtube_url, download=True)
+                    if info:
+                        break
+            except Exception as e:
+                err = str(e)
+                if "Sign in to confirm" in err or "captcha" in err.lower():
+                    continue  # Try next client
+                else:
+                    raise
+
+        if not info:
+            return None, "YouTube blocked this download. Try a different video."
+
+        # ✅ Locate the converted MP3
         mp3_path = next(
             (os.path.join(temp_dir, f) for f in os.listdir(temp_dir) if f.lower().endswith(".mp3")),
             None,
         )
-        
         if not mp3_path:
             return None, "Converted MP3 file not found"
-        
-        # Create AudioFile instance
+
+        title = info.get("title", "YouTube Audio")
+        duration = info.get("duration")
+
+        # Save to DB
         audio_obj = AudioFile.objects.create(
             source_type="youtube",
             youtube_url=youtube_url,
@@ -236,17 +274,16 @@ def download_youtube_audio(youtube_url):
             duration=duration,
             file_size=os.path.getsize(mp3_path)
         )
-        
-        # Save the audio file
+
         safe_title = title.replace("/", "_").replace("\\", "_").strip()
         with open(mp3_path, "rb") as f:
             audio_obj.audio_file.save(f"{safe_title}.mp3", ContentFile(f.read()))
-        
+
         return audio_obj, None
-        
+
     except Exception as e:
-        return None, f"YouTube download failed: {str(e)}"
-        
+        return None, f"YouTube download failed: {e}"
+
     finally:
         if temp_dir and os.path.exists(temp_dir):
             shutil.rmtree(temp_dir, ignore_errors=True)

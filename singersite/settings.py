@@ -14,6 +14,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-fallback-secret-key')
 
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
+# DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
@@ -81,12 +82,15 @@ TEMPLATES = [
 # -----------------------------
 # 🔹 Database Configuration (Safe for Render)
 # -----------------------------
+# -----------------------------
+# 🔹 Database Configuration — Works on both Local & Render Free
+# -----------------------------
 import dj_database_url
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
 if DATABASE_URL:
-    # ✅ Use PostgreSQL on Render (if provided)
+    # ✅ Use PostgreSQL on Render (if configured)
     DATABASES = {
         'default': dj_database_url.config(
             default=DATABASE_URL,
@@ -95,14 +99,20 @@ if DATABASE_URL:
         )
     }
 else:
-    # ✅ Use SQLite with persistent folder
-    SQLITE_PATH = os.path.join(BASE_DIR, 'data', 'db.sqlite3')
-    os.makedirs(os.path.dirname(SQLITE_PATH), exist_ok=True)
+    # ✅ Use SQLite
+    if os.environ.get("RENDER", False):
+        # 🟢 Running on Render → use persistent disk
+        PERSISTENT_DB_DIR = "/var/data"
+    else:
+        # 🖥️ Running locally → use project directory
+        PERSISTENT_DB_DIR = os.path.join(BASE_DIR, "data")
+
+    os.makedirs(PERSISTENT_DB_DIR, exist_ok=True)
 
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': SQLITE_PATH,
+        "default": {
+            "ENGINE": "django.db.backends.sqlite3",
+            "NAME": os.path.join(PERSISTENT_DB_DIR, "db.sqlite3"),
         }
     }
 
