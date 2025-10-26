@@ -113,7 +113,7 @@ class AudioFile(models.Model):
     
     youtube_url = models.URLField(max_length=500, blank=True, null=True, unique=True)
     audio_file = models.FileField(upload_to="audio_files/", blank=True, null=True)
-    
+    audio_data = models.BinaryField(blank=True, null=True)  # <--- ✅ add this line
     title = models.CharField(max_length=255, blank=True)
     duration = models.IntegerField(blank=True, null=True, help_text="Duration in seconds")
     file_size = models.BigIntegerField(blank=True, null=True, help_text="File size in bytes")
