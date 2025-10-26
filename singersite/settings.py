@@ -78,12 +78,15 @@ TEMPLATES = [
 # -----------------------------
 # 🔹 Database Configuration
 # -----------------------------
+# -----------------------------
+# 🔹 Database Configuration (Safe for Render)
+# -----------------------------
 import dj_database_url
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
 
 if DATABASE_URL:
-    # ✅ Use PostgreSQL on Render
+    # ✅ Use PostgreSQL on Render (if provided)
     DATABASES = {
         'default': dj_database_url.config(
             default=DATABASE_URL,
@@ -92,13 +95,17 @@ if DATABASE_URL:
         )
     }
 else:
-    # 🧩 Local fallback (or Render persistent disk)
+    # ✅ Use SQLite with persistent folder
+    SQLITE_PATH = os.path.join(BASE_DIR, 'data', 'db.sqlite3')
+    os.makedirs(os.path.dirname(SQLITE_PATH), exist_ok=True)
+
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': '/opt/render/project/src/db/db.sqlite3',  # Persistent path
+            'NAME': SQLITE_PATH,
         }
     }
+
 
 # DATABASE_URL = os.environ.get("DATABASE_URL")
 
